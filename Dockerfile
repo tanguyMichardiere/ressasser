@@ -14,14 +14,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json package-lock.json next.config.ts headers.config.ts postcss.config.mjs tsconfig.json src ./
 
-RUN API_KEY="API_KEY" ALLOW_HTTP="true" npm run build:standalone
+RUN ALLOW_HTTP="true" npm run build:standalone
 
 FROM node:24-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    ANALYTICS=false
+    NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
