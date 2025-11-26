@@ -4,6 +4,14 @@ import Image from "next/image";
 import { useState } from "react";
 import type { Link } from "../link";
 
+function formatDate(date: Date) {
+	const isoDate = date.toISOString();
+	if (isoDate.length === 24) {
+		return isoDate.slice(0, 10);
+	}
+	return isoDate.slice(3, 13);
+}
+
 type Props = Readonly<{
 	categories: Array<string>;
 	links: Array<Link>;
@@ -11,6 +19,11 @@ type Props = Readonly<{
 
 export function LinkList(props: Props) {
 	const [filterCategory, setFilterCategory] = useState<string | undefined>();
+
+	const filteredLinks =
+		filterCategory !== undefined
+			? props.links.filter((link) => link.category === filterCategory)
+			: props.links;
 
 	return (
 		<div>
@@ -38,10 +51,7 @@ export function LinkList(props: Props) {
 				))}
 			</form>
 			<ul className="list">
-				{(filterCategory !== undefined
-					? props.links.filter((link) => link.category === filterCategory)
-					: props.links
-				).map((link) => (
+				{filteredLinks.map((link) => (
 					<li className="list-row" key={`${link.category} ${link.url}`}>
 						<a
 							// TODO: visited:text-base-content/50 does not work
@@ -51,16 +61,16 @@ export function LinkList(props: Props) {
 							target="_blank"
 						>
 							<Image
-								alt="favicon"
+								alt=""
 								className="size-12"
 								height={128}
-								src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${link.url}&sz=128`}
+								src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(link.url).host}&sz=128`}
 								width={128}
 							/>
 							<div className="flex flex-col justify-center gap-2">
 								<p className="link">{link.title}</p>
 								<p className="text-xs">
-									{link.date.toLocaleDateString()} - {new URL(link.url).host}
+									{formatDate(link.date)} &mdash; {new URL(link.url).host}
 								</p>
 							</div>
 						</a>
