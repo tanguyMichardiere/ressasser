@@ -1,8 +1,47 @@
 import Image from "next/image";
 import Parser from "rss-parser";
+import type { Category, Feed } from "../../config";
 import { Config } from "../../config";
 
 const parser = new Parser();
+
+async function getFeedLinks(feed: Feed, category: Category, config: Config) {
+	const response = await fetch(feed.url, {
+		cache: "force-cache",
+		next: { revalidate: 3600 },
+	});
+	const parsedFeed = await parser.parseString(await response.text());
+	return parsedFeed.items
+		.flatMap((item) =>
+			item.title !== undefined && item.link !== undefined && item.pubDate !== undefined
+				? [
+						{
+							category: category.name,
+							title: item.title,
+							date: new Date(item.pubDate),
+							url: item.link,
+						},
+					]
+				: [],
+		)
+		.toSorted((linkA, linkB) => linkB.date.getTime() - linkA.date.getTime())
+		.slice(0, feed.links ?? category.linksPerFeed ?? config.linksPerFeed);
+}
+
+async function getAllLinks(config: Config) {
+	const linksByFeed = await Promise.allSettled(
+		config.categories.flatMap((category) =>
+			category.feeds.map((feed) => getFeedLinks(feed, category, config)),
+		),
+	);
+
+	return [
+		linksByFeed
+			.flatMap((result) => (result.status === "fulfilled" ? result.value : []))
+			.toSorted((linkA, linkB) => linkB.date.getTime() - linkA.date.getTime()),
+		linksByFeed.flatMap((result) => (result.status === "rejected" ? result.reason : [])),
+	] as const;
+}
 
 export default async function HomePage(props: PageProps<"/">) {
 	const searchParams = await props.searchParams;
@@ -15,29 +54,11 @@ export default async function HomePage(props: PageProps<"/">) {
 
 	const config = Config.parse(JSON.parse(atob(rawConfig)));
 
-	const links: Array<{ title: string; date: Date; url: string }> = [];
-
-	for (const category of config.categories) {
-		for (const feed of category.feeds) {
-			// TODO: fetch feeds in parallel
-			const response = await fetch(feed.url, { cache: "force-cache", next: { revalidate: 3600 } });
-			const parsedFeed = await parser.parseString(await response.text());
-			links.splice(
-				links.length,
-				0,
-				...parsedFeed.items
-					.flatMap((item) =>
-						item.title !== undefined && item.link !== undefined && item.pubDate !== undefined
-							? [{ title: item.title, date: new Date(item.pubDate), url: item.link }]
-							: [],
-					)
-					.toSorted((linkA, linkB) => linkB.date.getTime() - linkA.date.getTime())
-					.slice(0, feed.links ?? category.linksPerFeed ?? config.linksPerFeed),
-			);
-		}
+	const [links, errors] = await getAllLinks(config);
+	if (errors.length > 0) {
+		// TODO: display errors
+		console.log(errors);
 	}
-
-	links.sort((linkA, linkB) => linkB.date.getTime() - linkA.date.getTime());
 
 	return (
 		// TODO: checkboxes to disable categories
@@ -54,9 +75,9 @@ export default async function HomePage(props: PageProps<"/">) {
 						<Image
 							alt="favicon"
 							className="size-12"
-							height={48}
+							height={128}
 							src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${link.url}&sz=128`}
-							width={48}
+							width={128}
 						/>
 						<div className="flex flex-col justify-center gap-2">
 							<p className="link">{link.title}</p>
