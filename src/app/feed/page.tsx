@@ -64,7 +64,7 @@ export default async function HomePage(props: PageProps<"/feed">) {
 		// TODO: checkboxes to disable categories
 		<ul className="list">
 			{links.map((link) => (
-				<li className="list-row" key={link.url}>
+				<li className="list-row" key={`${link.category} ${link.url}`}>
 					<a
 						// TODO: visited:text-base-content/50 does not work
 						className="list-col-grow cursor-pointer visited:text-base-content/50 flex items-center gap-4"
