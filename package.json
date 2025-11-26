@@ -1,27 +1,48 @@
 {
-  "name": "ressasser",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "biome check",
-    "format": "biome format --write"
-  },
-  "dependencies": {
-    "next": "16.0.4",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+	"name": "ressasser",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"check-updates": "npm-check-updates --reject @types/node",
+		"dev": "next dev",
+		"analyze-bundle": "ANALYZE=true next build",
+		"check-dead-code": "knip",
+		"precheck-types": "next typegen",
+		"check-types": "tsc",
+		"format": "biome format --write .",
+		"lint": "biome ci --error-on-warnings .",
+		"quality": "npm run lint && npm run check-types && npm run check-dead-code",
+		"build": "next build",
+		"build:standalone": "STANDALONE_OUTPUT=true npm run build",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@tailwindcss/forms": "0.5.10",
+		"@tailwindcss/typography": "0.5.19",
+		"client-only": "0.0.1",
+		"next": "16.0.4",
+		"react": "19.2.0",
+		"react-dom": "19.2.0",
+		"rss-parser": "3.13.0",
+		"server-only": "0.0.1",
+		"tslib": "2.8.1",
+		"zod": "4.1.13"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2",
+		"@next/bundle-analyzer": "16",
+		"@tailwindcss/postcss": "4",
+		"@total-typescript/ts-reset": "0",
+		"@types/node": "20",
+		"@types/react": "19",
+		"@types/react-dom": "19",
+		"babel-plugin-react-compiler": "1",
+		"daisyui": "5",
+		"knip": "5",
+		"npm-check-updates": "19",
+		"postcss": "8",
+		"postcss-load-config": "6",
+		"tailwindcss": "4",
+		"typescript": "5"
+	}
 }

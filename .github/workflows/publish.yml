@@ -1,0 +1,36 @@
+name: Publish Docker image
+
+on:
+  push:
+
+env:
+  IMAGE_NAME: ressasser
+
+jobs:
+  publish:
+    name: Build and publish Docker image
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+      - name: Build image
+        run: docker build --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" .
+      - name: Log in to registry
+        if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/production' }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Publish image
+        if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/production' }}
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          [[ "${{ github.ref }}" == "refs/heads/develop" ]] && VERSION=preview
+          [[ "${{ github.ref }}" == "refs/heads/production" ]] && VERSION=latest
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
