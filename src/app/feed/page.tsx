@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Parser from "rss-parser";
-import { Config } from "../config";
+import { Config } from "../../config";
 
 const parser = new Parser();
 
