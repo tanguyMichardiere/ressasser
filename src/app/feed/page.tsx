@@ -43,7 +43,7 @@ async function getAllLinks(config: Config) {
 	] as const;
 }
 
-export default async function HomePage(props: PageProps<"/">) {
+export default async function HomePage(props: PageProps<"/feed">) {
 	const searchParams = await props.searchParams;
 	const rawConfig = searchParams.config;
 
