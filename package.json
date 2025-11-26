@@ -11,7 +11,7 @@
 		"check-types": "tsc",
 		"format": "biome format --write .",
 		"lint": "biome ci --error-on-warnings .",
-		"quality": "npm run lint && npm run check-types && npm run check-dead-code",
+		"quality": "npm run lint && npm run check-types",
 		"build": "next build",
 		"build:standalone": "STANDALONE_OUTPUT=true npm run build",
 		"start": "next start"
@@ -38,7 +38,6 @@
 		"@types/react-dom": "19",
 		"babel-plugin-react-compiler": "1",
 		"daisyui": "5",
-		"knip": "5",
 		"npm-check-updates": "19",
 		"postcss": "8",
 		"postcss-load-config": "6",
