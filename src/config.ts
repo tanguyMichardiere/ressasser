@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const Feed = z.object({
-	name: z.string(),
 	url: z.url(),
 	links: z.optional(z.int().positive()),
 });
@@ -11,8 +10,8 @@ export const Category = z.object({
 	name: z.string(),
 	feeds: z
 		.array(Feed)
-		.refine((feeds) => new Set(feeds.map((feed) => feed.name)).size === feeds.length, {
-			error: "Duplicate feed names",
+		.refine((feeds) => new Set(feeds.map((feed) => feed.url)).size === feeds.length, {
+			error: "Duplicate feed URLs",
 		}),
 	linksPerFeed: z.optional(z.int().positive()),
 });

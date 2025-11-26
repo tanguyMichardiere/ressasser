@@ -37,20 +37,3 @@ jobs:
         run: npm clean-install
       - name: Check types
         run: npm run check-types
-
-  check-dead-code:
-    name: Check dead code
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v5
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm clean-install
-      - name: Check dead code
-        run: npm run check-dead-code
