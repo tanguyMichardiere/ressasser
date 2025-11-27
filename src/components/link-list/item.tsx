@@ -1,8 +1,7 @@
 import Image from "next/image";
-import type { Link } from "../../link";
+import type { Link } from "../../rss";
 
-function formatDate(date: Date) {
-	const isoDate = date.toISOString();
+function formatDate(isoDate: string) {
 	if (isoDate.length === 24) {
 		return isoDate.slice(0, 10);
 	}

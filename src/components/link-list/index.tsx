@@ -1,8 +1,7 @@
 "use client";
 
-import type { FormEvent } from "react";
 import { useState } from "react";
-import type { Link } from "../../link";
+import type { Link } from "../../rss";
 import { LinkListItem } from "./item";
 
 type Props = Readonly<{
@@ -13,16 +12,6 @@ type Props = Readonly<{
 export function LinkList(props: Props) {
 	const [filterCategory, setFilterCategory] = useState<string | undefined>();
 
-	function handleFormChange(event: FormEvent<HTMLFormElement>) {
-		if (event.target instanceof HTMLInputElement) {
-			setFilterCategory(event.target.value);
-		}
-	}
-
-	function handleFormReset() {
-		setFilterCategory(undefined);
-	}
-
 	const filteredLinks =
 		filterCategory !== undefined
 			? props.links.filter((link) => link.category === filterCategory)
@@ -30,19 +19,28 @@ export function LinkList(props: Props) {
 
 	return (
 		<div>
-			<form className="filter p-4" onChange={handleFormChange} onReset={handleFormReset}>
-				<input className="btn btn-square" type="reset" value="×" />
-				{props.categories.map((category) => (
-					<input
-						aria-label={category}
-						className="btn"
-						key={category}
-						name="categories"
-						type="radio"
-						value={category}
-					/>
-				))}
-			</form>
+			{props.categories.length > 1 && (
+				<form
+					className="filter p-4"
+					onReset={() => {
+						setFilterCategory(undefined);
+					}}
+				>
+					<input className="btn btn-square" type="reset" value="×" />
+					{props.categories.map((category) => (
+						<input
+							aria-label={category}
+							className="btn"
+							key={category}
+							name="categories"
+							onClick={() => {
+								setFilterCategory(category);
+							}}
+							type="radio"
+						/>
+					))}
+				</form>
+			)}
 			<ul className="list">
 				{filteredLinks.map((link) => (
 					<LinkListItem key={`${link.category} ${link.url}`} link={link} />
