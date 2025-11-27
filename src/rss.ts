@@ -5,25 +5,33 @@ import "server-only";
 export type Link = {
 	category: string;
 	title: string;
-	date: string;
+	timestamp: number;
+	date: Date;
 	url: string;
 };
 
 const parser = new Parser();
 
 async function getFeedLinks(feed: Feed, category: Category, config: Config): Promise<Array<Link>> {
-	const response = await fetch(feed.url, {
-		cache: "force-cache",
-		next: { revalidate: 60 },
-	});
+	const response = await fetch(feed.url, { cache: "force-cache", next: { revalidate: 60 } });
 	const parsedFeed = await parser.parseString(await response.text());
 	return parsedFeed.items
-		.flatMap((item) =>
-			item.title !== undefined && item.link !== undefined && item.isoDate !== undefined
-				? [{ category: category.name, title: item.title, date: item.isoDate, url: item.link }]
-				: [],
-		)
-		.toSorted((linkA, linkB) => Date.parse(linkB.date) - Date.parse(linkA.date))
+		.flatMap((item) => {
+			if (item.title === undefined || item.link === undefined || item.isoDate === undefined) {
+				return [];
+			}
+			const timestamp = Date.parse(item.isoDate);
+			return [
+				{
+					category: category.name,
+					title: item.title,
+					timestamp,
+					date: new Date(timestamp),
+					url: item.link,
+				},
+			];
+		})
+		.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp)
 		.slice(0, feed.links ?? category.linksPerFeed ?? config.linksPerFeed);
 }
 
@@ -37,7 +45,7 @@ export async function getLinks(config: Config): Promise<[Array<Link>, Array<unkn
 	return [
 		linksByFeed
 			.flatMap((result) => (result.status === "fulfilled" ? result.value : []))
-			.toSorted((linkA, linkB) => Date.parse(linkB.date) - Date.parse(linkA.date)),
+			.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp),
 		linksByFeed.flatMap((result) => (result.status === "rejected" ? [result.reason] : [])),
 	];
 }
