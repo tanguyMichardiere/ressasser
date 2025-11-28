@@ -22,12 +22,12 @@ async function getFeedLinks(url: string) {
 	const response = await fetch(url);
 	const feed = await parser.parseString(await response.text());
 	return feed.items
-		.flatMap((item) => {
-			if (item.title === undefined || item.link === undefined || item.isoDate === undefined) {
+		.flatMap((link) => {
+			if (link.title === undefined || link.link === undefined || link.isoDate === undefined) {
 				return [];
 			}
-			const timestamp = Date.parse(item.isoDate);
-			return { title: item.title, timestamp, date: new Date(timestamp), url: item.link };
+			const timestamp = Date.parse(link.isoDate);
+			return { title: link.title, timestamp, date: new Date(timestamp), url: link.link };
 		})
 		.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp)
 		.slice(0, 10);
@@ -49,7 +49,8 @@ export async function getLinks(config: Config): Promise<[Array<Link>, Array<unkn
 	return [
 		linksByFeed
 			.flatMap((result) => (result.status === "fulfilled" ? result.value : []))
-			.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp),
+			.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp)
+			.map((link) => ({ ...link, timestamp: undefined })),
 		linksByFeed.flatMap((result) => (result.status === "rejected" ? [result.reason] : [])),
 	];
 }
