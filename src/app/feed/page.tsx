@@ -1,8 +1,8 @@
-import { LinkList } from "../components/link-list";
-import { Config } from "../config";
-import { getLinks } from "../rss";
+import { LinkList } from "../../components/link-list";
+import { Config } from "../../config";
+import { getLinks } from "../../rss";
 
-export default async function HomePage(props: PageProps<"/">) {
+export default async function HomePage(props: PageProps<"/feed">) {
 	const searchParams = await props.searchParams;
 	const rawConfig = searchParams.config;
 
