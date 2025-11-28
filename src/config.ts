@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const Feed = z.object({
 	url: z.url(),
-	links: z.optional(z.int().positive()),
+	links: z.optional(z.int().positive().max(10)),
 });
 export type Feed = z.infer<typeof Feed>;
 
@@ -11,9 +11,9 @@ export const Category = z.object({
 	feeds: z
 		.array(Feed)
 		.refine((feeds) => new Set(feeds.map((feed) => feed.url)).size === feeds.length, {
-			error: "Duplicate feed URLs",
+			error: "Duplicate feed URLs in category",
 		}),
-	linksPerFeed: z.optional(z.int().positive()),
+	linksPerFeed: z.optional(z.int().positive().max(10)),
 });
 export type Category = z.infer<typeof Category>;
 
@@ -27,6 +27,6 @@ export const Config = z.object({
 				error: "Duplicate category names",
 			},
 		),
-	linksPerFeed: z.int().positive(),
+	linksPerFeed: z.int().positive().max(10).default(3),
 });
 export type Config = z.infer<typeof Config>;
