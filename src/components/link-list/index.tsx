@@ -6,6 +6,7 @@ import { LinkListItem } from "./item";
 
 type Props = Readonly<{
 	categories: Array<string>;
+	className?: string;
 	links: Array<Link>;
 }>;
 
@@ -18,7 +19,7 @@ export function LinkList(props: Props) {
 			: props.links;
 
 	return (
-		<div>
+		<div className={props.className}>
 			{props.categories.length > 1 && (
 				<form
 					className="filter p-4"

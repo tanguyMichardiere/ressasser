@@ -18,7 +18,7 @@ export default function RootLayout(props: LayoutProps<"/">) {
 	return (
 		<html lang="en">
 			{env.ANALYTICS && <ClientAnalytics />}
-			<body className={`${inter.variable} antialiased max-w-md mx-auto`}>{props.children}</body>
+			<body className={`${inter.variable} antialiased`}>{props.children}</body>
 		</html>
 	);
 }
