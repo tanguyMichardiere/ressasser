@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import { ClientAnalytics } from "../components/client-analytics";
+import { LoadingPage } from "../components/loading-page";
 import { env } from "../env";
 
 const inter = Inter({
@@ -18,7 +20,9 @@ export default function RootLayout(props: LayoutProps<"/">) {
 	return (
 		<html lang="en">
 			{env.ANALYTICS && <ClientAnalytics />}
-			<body className={`${inter.variable} antialiased`}>{props.children}</body>
+			<body className={`${inter.variable} antialiased`}>
+				<Suspense fallback={<LoadingPage />}>{props.children}</Suspense>
+			</body>
 		</html>
 	);
 }
