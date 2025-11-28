@@ -1,43 +1,56 @@
 import Parser from "rss-parser";
-import type { Category, Config, Feed } from "./config";
+import type { Config } from "./config";
 import "server-only";
+import { cacheLife } from "next/cache";
 
 export type Link = {
 	category: string;
 	title: string;
-	date: string;
+	date: Date;
 	url: string;
 };
 
 const parser = new Parser();
 
-async function getFeedLinks(feed: Feed, category: Category, config: Config): Promise<Array<Link>> {
-	const response = await fetch(feed.url, {
-		cache: "force-cache",
-		next: { revalidate: 60 },
-	});
-	const parsedFeed = await parser.parseString(await response.text());
-	return parsedFeed.items
-		.flatMap((item) =>
-			item.title !== undefined && item.link !== undefined && item.isoDate !== undefined
-				? [{ category: category.name, title: item.title, date: item.isoDate, url: item.link }]
-				: [],
-		)
-		.toSorted((linkA, linkB) => Date.parse(linkB.date) - Date.parse(linkA.date))
-		.slice(0, feed.links ?? category.linksPerFeed ?? config.linksPerFeed);
+/**
+ * Get the 10 most recent links from a feed URL
+ */
+async function getFeedLinks(url: string) {
+	"use cache";
+	cacheLife("minutes");
+
+	const response = await fetch(url);
+	const feed = await parser.parseString(await response.text());
+	return feed.items
+		.flatMap((link) => {
+			if (link.title === undefined || link.link === undefined || link.isoDate === undefined) {
+				return [];
+			}
+			const timestamp = Date.parse(link.isoDate);
+			return { title: link.title, timestamp, date: new Date(timestamp), url: link.link };
+		})
+		.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp)
+		.slice(0, 10);
 }
 
 export async function getLinks(config: Config): Promise<[Array<Link>, Array<unknown>]> {
 	const linksByFeed = await Promise.allSettled(
 		config.categories.flatMap((category) =>
-			category.feeds.map((feed) => getFeedLinks(feed, category, config)),
+			category.feeds.map((feed) =>
+				getFeedLinks(feed.url).then((links) =>
+					links
+						.slice(0, feed.links ?? category.linksPerFeed ?? config.linksPerFeed)
+						.map((link) => ({ ...link, category: category.name })),
+				),
+			),
 		),
 	);
 
 	return [
 		linksByFeed
 			.flatMap((result) => (result.status === "fulfilled" ? result.value : []))
-			.toSorted((linkA, linkB) => Date.parse(linkB.date) - Date.parse(linkA.date)),
+			.toSorted((linkA, linkB) => linkB.timestamp - linkA.timestamp)
+			.map((link) => ({ ...link, timestamp: undefined })),
 		linksByFeed.flatMap((result) => (result.status === "rejected" ? [result.reason] : [])),
 	];
 }

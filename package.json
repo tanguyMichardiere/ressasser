@@ -17,10 +17,12 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@t3-oss/env-nextjs": "0.13.8",
 		"@tailwindcss/forms": "0.5.10",
 		"@tailwindcss/typography": "0.5.19",
+		"@vercel/analytics": "1.5.0",
 		"client-only": "0.0.1",
-		"next": "16.0.4",
+		"next": "16.0.5",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
 		"rss-parser": "3.13.0",
@@ -37,6 +39,7 @@
 		"@types/react": "19",
 		"@types/react-dom": "19",
 		"babel-plugin-react-compiler": "1",
+		"baseline-browser-mapping": "2",
 		"daisyui": "5",
 		"npm-check-updates": "19",
 		"postcss": "8",

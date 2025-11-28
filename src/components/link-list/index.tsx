@@ -6,19 +6,22 @@ import { LinkListItem } from "./item";
 
 type Props = Readonly<{
 	categories: Array<string>;
+	className?: string;
 	links: Array<Link>;
 }>;
 
 export function LinkList(props: Props) {
+	const linksByCategory = Object.fromEntries(
+		props.categories.map((category) => [
+			category,
+			props.links.filter((link) => link.category === category),
+		]),
+	);
+
 	const [filterCategory, setFilterCategory] = useState<string | undefined>();
 
-	const filteredLinks =
-		filterCategory !== undefined
-			? props.links.filter((link) => link.category === filterCategory)
-			: props.links;
-
 	return (
-		<div>
+		<div className={props.className}>
 			{props.categories.length > 1 && (
 				<form
 					className="filter p-4"
@@ -42,9 +45,12 @@ export function LinkList(props: Props) {
 				</form>
 			)}
 			<ul className="list">
-				{filteredLinks.map((link) => (
-					<LinkListItem key={`${link.category} ${link.url}`} link={link} />
-				))}
+				{/** biome-ignore lint/style/noNonNullAssertion: by construction of linksByCategory */}
+				{(filterCategory !== undefined ? linksByCategory[filterCategory]! : props.links).map(
+					(link) => (
+						<LinkListItem key={`${link.category} ${link.url}`} link={link} />
+					),
+				)}
 			</ul>
 		</div>
 	);

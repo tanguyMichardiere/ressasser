@@ -19,5 +19,11 @@ export default async function HomePage(props: PageProps<"/feed">) {
 		console.log(errors);
 	}
 
-	return <LinkList categories={config.categories.map((category) => category.name)} links={links} />;
+	return (
+		<LinkList
+			categories={config.categories.map((category) => category.name)}
+			className="max-w-md mx-auto"
+			links={links}
+		/>
+	);
 }
