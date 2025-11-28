@@ -17,10 +17,18 @@ const parser = new Parser();
  */
 async function getFeedLinks(url: string) {
 	"use cache: remote";
-	cacheLife("minutes");
 
 	const response = await fetch(url);
 	const feed = await parser.parseString(await response.text());
+
+	if (feed.items.length <= 10) {
+		cacheLife("seconds");
+	} else if (feed.items.length <= 100) {
+		cacheLife("minutes");
+	} else {
+		cacheLife("hours");
+	}
+
 	return feed.items
 		.flatMap((link) => {
 			if (link.title === undefined || link.link === undefined || link.isoDate === undefined) {
