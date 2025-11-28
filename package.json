@@ -39,6 +39,7 @@
 		"@types/react": "19",
 		"@types/react-dom": "19",
 		"babel-plugin-react-compiler": "1",
+		"baseline-browser-mapping": "2",
 		"daisyui": "5",
 		"npm-check-updates": "19",
 		"postcss": "8",

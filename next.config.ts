@@ -8,6 +8,7 @@ let nextConfig: NextConfig = {
 	typedRoutes: true,
 	reactStrictMode: true,
 	reactCompiler: true,
+	cacheComponents: true,
 	headers() {
 		return Promise.resolve([{ headers, source: "/:path*" }]);
 	},

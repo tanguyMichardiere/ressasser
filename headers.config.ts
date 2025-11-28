@@ -23,6 +23,20 @@ if (process.env.ALLOW_HTTP !== "true") {
 	contentSecurityPolicy["upgrade-insecure-requests"] = [];
 }
 
+function addSrc(key: string, value: string) {
+	if (key in contentSecurityPolicy) {
+		// @ts-expect-error checked by the line above
+		contentSecurityPolicy[key].push(value);
+	} else {
+		contentSecurityPolicy[key] = [self, value];
+	}
+}
+
+if (process.env.NODE_ENV === "development") {
+	// mock script used only in development
+	addSrc("script-src", "va.vercel-scripts.com");
+}
+
 export const headers = [
 	{ key: "X-DNS-Prefetch-Control", value: "on" },
 	{ key: "X-XSS-Protection", value: "1; mode=block" },
