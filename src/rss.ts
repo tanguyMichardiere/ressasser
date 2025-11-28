@@ -16,7 +16,7 @@ const parser = new Parser();
  * Get the 10 most recent links from a feed URL
  */
 async function getFeedLinks(url: string) {
-	"use cache";
+	"use cache: remote";
 	cacheLife("minutes");
 
 	const response = await fetch(url);
