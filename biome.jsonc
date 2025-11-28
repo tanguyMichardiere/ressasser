@@ -67,6 +67,17 @@
 			}
 		},
 		{
+			// environment variable names are not in camelCase
+			"includes": ["src/env.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		},
+		{
 			// globals.css is a TailwindCSS file
 			"includes": ["src/app/globals.css"],
 			"linter": {
