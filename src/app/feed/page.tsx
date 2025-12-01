@@ -2,7 +2,7 @@ import { LinkList } from "../../components/link-list";
 import { Config } from "../../config";
 import { getLinks } from "../../rss";
 
-export default async function HomePage(props: PageProps<"/feed">) {
+export default async function FeedPage(props: PageProps<"/feed">) {
 	const searchParams = await props.searchParams;
 	const rawConfig = searchParams.config;
 

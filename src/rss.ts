@@ -1,7 +1,6 @@
 import Parser from "rss-parser";
 import type { Config } from "./config";
 import "server-only";
-import { cacheLife } from "next/cache";
 
 export type Link = {
 	category: string;
@@ -20,14 +19,6 @@ async function getFeedLinks(url: string) {
 
 	const response = await fetch(url);
 	const feed = await parser.parseString(await response.text());
-
-	if (feed.items.length <= 10) {
-		cacheLife("seconds");
-	} else if (feed.items.length <= 100) {
-		cacheLife("minutes");
-	} else {
-		cacheLife("hours");
-	}
 
 	return feed.items
 		.flatMap((link) => {
