@@ -1,6 +1,7 @@
 import Parser from "rss-parser";
 import type { Config } from "./config";
 import "server-only";
+import { cacheLife } from "next/cache";
 
 export type Link = {
 	category: string;
@@ -16,6 +17,12 @@ const parser = new Parser();
  */
 async function getFeedLinks(url: string) {
 	"use cache: remote";
+
+	cacheLife({
+		stale: 300, // 5 minutes client-side
+		revalidate: 900, // 15 minutes server-side
+		expire: 900, // no SWR
+	});
 
 	const response = await fetch(url);
 	const feed = await parser.parseString(await response.text());
